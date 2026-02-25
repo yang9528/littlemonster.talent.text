@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12维度天赋测试 - 发现你的独特潜能</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF8FA3;
+            --primary-light: #FFB3C1;
+            --primary-dark: #E85A7A;
+            --secondary: #95E1D3;
+            --accent: #FFD93D;
+            --bg: #FFF5F7;
+            --card-bg: #FFFFFF;
+            --text: #4A4A4A;
+            --text-light: #888888;
+            --text-lighter: #AAAAAA;
+            --shadow: 0 10px 40px rgba(255, 143, 163, 0.12);
+            --shadow-hover: 0 15px 50px rgba(255, 143, 163, 0.2);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* 背景装饰 - 对称布局 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+
+        .bg-circle-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bg-circle-2 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, var(--secondary), #A8E6CF);
+            bottom: -100px;
+            left: 10%;
+        }
+
+        .bg-circle-3 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, var(--accent), #FFE082);
+            bottom: 50px;
+            right: 10%;
+        }
+
+        /* 容器 - 居中对称 */
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 页面通用 */
+        .page {
+            display: none;
+            animation: fadeIn 0.6s ease;
+            flex: 1;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片样式 - 对称圆角 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        /* 欢迎页 - 居中对称 */
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .welcome-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-light);
+        }
+
+        /* 信息卡片 - 对称网格 */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: linear-gradient(145deg, #FFF8FA, #FFF0F3);
+            border-radius: 20px;
+            padding: 24px 16px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .info-card-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .info-card-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .info-card-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* 12维度预览 - 对称4列 */
+        .dimensions-preview {
+            margin-bottom: 40px;
+        }
+
+        .dimensions-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .dimension-item {
+            background: #FFF9FA;
+            border: 1.5px solid #FFE8EC;
+            border-radius: 14px;
+            padding: 16px 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .dimension-item:hover {
+            border-color: var(--primary-light);
+            background: #FFF5F7;
+        }
+
+        .dimension-icon {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .dimension-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        /* 隐私声明 - 居中对称 */
+        .privacy-notice {
+            background: linear-gradient(145deg, #F0F9F6, #E8F5F1);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .privacy-icon {
+            font-size: 28px;
+        }
+
+        .privacy-text {
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .privacy-text strong {
+            color: #27AE60;
+        }
+
+        /* CTA区域 - 居中对称 */
+        .cta-section {
+            text-align: center;
+            padding: 20px 0 40px;
+        }
+
+        .cta-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .cta-subtext {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 28px;
+        }
+
+        /* 按钮 - 对称圆角 */
+        .btn {
+            background: linear-gradient(145deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 18px 64px;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 143, 163, 0.35);
+            font-family: inherit;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 14px 48px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 进度条 - 居中 */
+        .progress-container {
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #FFE8EC;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* 问题页 - 居中对称 */
+        .question-card {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .question-number {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 32px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #FFFAFB;
+            border: 1.5px solid #FFE8EC;
+            border-radius: 14px;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .option:hover {
+            background: #FFF5F7;
+            border-color: var(--primary-light);
+            transform: translateX(6px);
+        }
+
+        .option-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-light));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        /* 加载页 - 居中 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 100px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #FFE8EC;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .loading-subtext {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* 报告页 - 对称布局 */
+        .report-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(145deg, #FFF8FA, #FFF0F3);
+            border-radius: 24px;
+        }
+
+        .report-emoji {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .report-type {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .report-subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* 雷达图 - 居中 */
+        .radar-section {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .radar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+
+        .radar-container {
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        /* 详细解读 - 扩展内容 */
+        .detail-section {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .section-icon {
+            font-size: 22px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .detail-content {
+            font-size: 14px;
+            line-height: 2;
+            color: var(--text);
+            text-align: justify;
+        }
+
+        .detail-content p {
+            margin-bottom: 16px;
+        }
+
+        .detail-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 天赋卡片 - 对称两列 */
+        .talent-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .talent-card {
+            background: #FFFAFB;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1.5px solid #FFE8EC;
+        }
+
+        .talent-card.full-width {
+            grid-column: span 2;
+        }
+
+        .talent-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .talent-icon {
+            font-size: 24px;
+        }
+
+        .talent-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .talent-score {
+            margin-left: auto;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .score-high {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .score-medium {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .score-low {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .talent-desc {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        /* 职业场景 - 标签流 */
+        .scene-section {
+            background: linear-gradient(145deg, #F0F9F6, #E8F5F1);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .scene-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #27AE60;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .scene-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .scene-tag {
+            background: white;
+            color: #27AE60;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 行动计划 - 时间线 */
+        .action-section {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .action-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .action-item {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-marker {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .action-text {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        /* 报告底部 */
+        .report-footer {
+            background: #F8F9FA;
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .report-time {
+            font-size: 12px;
+            color: var(--text-lighter);
+            margin-bottom: 12px;
+        }
+
+        .report-notice {
+            font-size: 12px;
+            line-height: 1.9;
+            color: var(--text-light);
+        }
+
+        /* 分享链接区域样式 */
+        .share-section {
+            text-align: center;
+            padding: 20px 0;
+            display: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px 16px;
+            }
+            
+            .card {
+                padding: 24px;
+            }
+            
+            .info-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dimensions-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .talent-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .talent-card.full-width {
+                grid-column: span 1;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            .report-title {
+                font-size: 22px;
+            }
+
+            .share-section input {
+                width: 90% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+        <div class="bg-circle bg-circle-3"></div>
+    </div>
+    
+    <div class="container">
+        <!-- 欢迎页 -->
+        <div class="page active" id="welcome-page">
+            <div class="welcome-header">
+                <div class="welcome-icon">✨</div>
+                <h1>12维度天赋测试</h1>
+                <p class="subtitle">基于多元智能理论，全面解析你的独特潜能</p>
+            </div>
+
+            <div class="card">
+                <!-- 信息卡片 - 4列对称 -->
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-card-icon">⏱️</div>
+                        <div class="info-card-value">6-9</div>
+                        <div class="info-card-label">分钟</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">📋</div>
+                        <div class="info-card-value">39</div>
+                        <div class="info-card-label">道题目</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">🎯</div>
+                        <div class="info-card-value">12</div>
+                        <div class="info-card-label">个维度</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">🔒</div>
+                        <div class="info-card-value">100%</div>
+                        <div class="info-card-label">隐私保护</div>
+                    </div>
+                </div>
+
+                <!-- 12维度预览 - 4列对称 -->
+                <div class="dimensions-preview">
+                    <p class="dimensions-title">🌈 探索你的12大天赋维度</p>
+                    <div class="dimensions-grid">
+                        <div class="dimension-item"><div class="dimension-icon">📝</div><div class="dimension-name">语言天赋</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🔢</div><div class="dimension-name">逻辑算术</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🧘</div><div class="dimension-name">内省天赋</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🏃</div><div class="dimension-name">身体动觉</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🎵</div><div class="dimension-name">音乐天赋</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🎨</div><div class="dimension-name">美学天赋</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🤝</div><div class="dimension-name">人际天赋</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🌿</div><div class="dimension-name">自然观察</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🧭</div><div class="dimension-name">空间感知</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">💭</div><div class="dimension-name">存在智慧</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">🔮</div><div class="dimension-name">直觉力</div></div>
+                        <div class="dimension-item"><div class="dimension-icon">⚡</div><div class="dimension-name">执行力</div></div>
+                    </div>
+                </div>
+
+                <!-- 隐私声明 -->
+                <div class="privacy-notice">
+                    <div class="privacy-icon">🛡️</div>
+                    <div class="privacy-text">
+                        <strong>100% 隐私保护</strong> · 测试数据仅存储在本地，不会上传至任何服务器
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA区域 -->
+            <div class="cta-section">
+                <!-- 新增：分享链接生成区域 -->
+                <div class="share-section" id="share-section">
+                    <p class="cta-subtext">🔗 你的48小时专属测试链接（仅可测评1次）</p>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap;">
+                        <input type="text" id="share-link" readonly style="padding: 12px 16px; border: 1px solid #FFE8EC; border-radius: 14px; width: 80%; max-width: 400px; font-size: 14px; color: #4A4A4A;">
+                        <button class="btn-secondary" onclick="copyLink()" style="padding: 10px 20px; font-size: 14px;">复制</button>
+                    </div>
+                    <p class="cta-subtext" style="color: #E85A7A; font-size: 12px;">注：链接48小时内未使用则失效，使用后永久有效（仅展示结果）</p>
+                </div>
+                <button class="btn-secondary" onclick="generateShareLink()" style="margin-bottom: 16px;">生成48小时专属测试链接</button>
+                
+                <p class="cta-text">🌟 准备好发现你的天赋了吗？</p>
+                <p class="cta-subtext">6-9分钟，39道精选题目，开启你的天赋探索之旅</p>
+                <button class="btn" onclick="startQuiz()">开始测试</button>
+            </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="page" id="progress-page">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <p class="progress-text">第 <span id="current-q">1</span> / 39 题</p>
+            </div>
+        </div>
+
+        <!-- 问题页 -->
+        <div class="page" id="question-page">
+            <div class="card question-card">
+                <p class="question-number">QUESTION <span id="q-number">1</span> / 39</p>
+                <p class="question-text" id="q-text">问题内容</p>
+                <div class="options" id="options"></div>
+            </div>
+        </div>
+
+        <!-- 加载页 -->
+        <div class="loading" id="loading-page">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">正在分析你的12维度天赋图谱...</p>
+            <p class="loading-subtext">请稍候，报告即将生成</p>
+        </div>
+
+        <!-- 结果报告页 -->
+        <div class="page" id="result-page">
+            <!-- 报告头部 -->
+            <div class="report-header">
+                <div class="report-emoji" id="report-emoji">🎉</div>
+                <p class="report-type">你的天赋类型</p>
+                <h2 class="report-title" id="report-title">天赋组合名称</h2>
+                <p class="report-subtitle" id="report-subtitle">专属天赋分析报告</p>
+            </div>
+
+            <!-- 雷达图 -->
+            <div class="radar-section">
+                <p class="radar-title">📊 你的12维度天赋全景图</p>
+                <div class="radar-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 详细解读 -->
+            <div class="detail-section">
+                <div class="section-header">
+                    <span class="section-icon">💎</span>
+                    <span class="section-title">核心优势深度解读</span>
+                </div>
+                <div class="detail-content" id="detail-content"></div>
+            </div>
+
+            <!-- 天赋详情 -->
+            <div class="detail-section">
+                <div class="section-header">
+                    <span class="section-icon">📊</span>
+                    <span class="section-title">各天赋维度详情</span>
+                </div>
+                <div class="talent-grid" id="talent-grid"></div>
+            </div>
+
+            <!-- 职场应用场景 -->
+            <div class="scene-section">
+                <p class="scene-title">💼 推荐的职场最佳应用场景</p>
+                <div class="scene-list" id="scene-list"></div>
+            </div>
+
+            <!-- 行动计划 -->
+            <div class="action-section">
+                <div class="section-header">
+                    <span class="section-icon">🎯</span>
+                    <span class="section-title">职业发展指南行动计划</span>
+                </div>
+                <div class="action-timeline">
+                    <div class="action-item">
+                        <div class="action-marker">⚡</div>
+                        <div class="action-content">
+                            <p class="action-title">短期目标（1-3个月）</p>
+                            <p class="action-text" id="action-short"></p>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-marker">🚀</div>
+                        <div class="action-content">
+                            <p class="action-title">中期发展（3-12个月）</p>
+                            <p class="action-text" id="action-mid"></p>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-marker">🌟</div>
+                        <div class="action-content">
+                            <p class="action-title">长期愿景（1-3年）</p>
+                            <p class="action-text" id="action-long"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 报告底部 -->
+            <div class="report-footer">
+                <p class="report-time">📅 报告生成时间：<span id="report-time"></span></p>
+                <p class="report-notice">
+                    💡 本报告基于多元智能理论，对你的优势与成长方向做结构化呈现。<br>
+                    它不定义你，而是提供指导——请结合你的兴趣和现实情况综合判断。
+                </p>
+            </div>
+
+            <div style="text-align: center; padding: 20px 0 40px;">
+                <button class="btn-secondary" onclick="restartQuiz()">重新测试</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 一次性链接核心逻辑（48小时时效版）==========
+        // 全局变量：存储当前验证通过的Token（用于后续判断是否已使用）
+        let currentValidToken = null;
+
+        // 1. 生成UUID（唯一Token）
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // 2. 生成48小时有效期的分享链接
+        function generateShareLink() {
+            // 生成唯一Token
+            const uniqueToken = generateUUID();
+            // 拼接当前页面URL + Token参数
+            const currentUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${currentUrl}?token=${uniqueToken}`;
+            
+            // 存储Token信息：状态（unused）+ 生成时间（时间戳）
+            const tokenData = {
+                status: 'unused', // unused:未使用 | used:已使用
+                createTime: new Date().getTime() // 生成时间戳
+            };
+            localStorage.setItem(`test_token_${uniqueToken}`, JSON.stringify(tokenData));
+            
+            // 显示分享链接
+            document.getElementById('share-section').style.display = 'block';
+            document.getElementById('share-link').value = shareUrl;
+            
+            // 提示生成成功
+            alert('48小时专属测试链接已生成！\n链接有效期48小时，使用后永久有效（仅展示结果）');
+        }
+
+        // 3. 复制链接到剪贴板
+        function copyLink() {
+            const linkInput = document.getElementById('share-link');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('链接已复制到剪贴板！');
+        }
+
+        // 4. 验证Token有效性（48小时时效+状态判断）
+        function validateToken() {
+            // 获取URL中的Token参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (!token) return; // 无Token则跳过验证
+            
+            // 从localStorage获取Token数据
+            const tokenStr = localStorage.getItem(`test_token_${token}`);
+            if (!tokenStr) {
+                alert('❌ 该测试链接无效或已过期！');
+                return;
+            }
+            
+            const tokenData = JSON.parse(tokenStr);
+            const now = new Date().getTime();
+            const fortyEightHours = 48 * 60 * 60 * 1000; // 48小时毫秒数
+            
+            // 情况1：未使用但超过48小时 → 链接失效
+            if (tokenData.status === 'unused' && (now - tokenData.createTime) > fortyEightHours) {
+                alert('❌ 该测试链接已超过48小时有效期，请获取新链接！');
+                return;
+            }
+            
+            // 情况2：已使用 → 标记全局变量，首页正常展示，点击测试弹结果
+            if (tokenData.status === 'used') {
+                currentValidToken = token;
+                return; // 不拦截首页，仅拦截测试按钮
+            }
+            
+            // 情况3：未使用且在有效期内 → 正常允许测试，标记全局变量
+            if (tokenData.status === 'unused' && (now - tokenData.createTime) <= fortyEightHours) {
+                currentValidToken = token;
+                alert('✅ 验证通过，即将进入测试！\n测试完成后链接永久有效（仅展示结果）');
+            }
+        }
+
+        // ========== 原有测试逻辑 ==========
+        // 12个天赋维度定义
+        const dimensions = {
+            linguistic: { name: '语言天赋', icon: '📝', color: '#FF8FA3' },
+            logical: { name: '逻辑算术', icon: '🔢', color: '#4ECDC4' },
+            intrapersonal: { name: '内省天赋', icon: '🧘', color: '#9B59B6' },
+            bodily: { name: '身体动觉', icon: '🏃', color: '#E74C3C' },
+            musical: { name: '音乐天赋', icon: '🎵', color: '#3498DB' },
+            aesthetic: { name: '美学天赋', icon: '🎨', color: '#F39C12' },
+            interpersonal: { name: '人际天赋', icon: '🤝', color: '#27AE60' },
+            naturalist: { name: '自然观察', icon: '🌿', color: '#16A085' },
+            spatial: { name: '空间感知', icon: '🧭', color: '#8E44AD' },
+            existential: { name: '存在智慧', icon: '💭', color: '#2C3E50' },
+            intuitive: { name: '直觉力', icon: '🔮', color: '#E91E63' },
+            executive: { name: '执行力', icon: '⚡', color: '#FF5722' }
+        };
+
+        // 39道测试题目（完整版本）
+        const questions = [
+            // 语言天赋相关 (1-4)
+            {
+                text: "你在写作或表达时，通常感觉如何？",
+                options: [
+                    { text: "非常流畅，能精准表达想法", scores: { linguistic: 3, intrapersonal: 1 } },
+                    { text: "还可以，但需要组织一下语言", scores: { linguistic: 2 } },
+                    { text: "一般，更习惯用行动表达", scores: { bodily: 2, executive: 1 } },
+                    { text: "比较困难，不太擅长文字表达", scores: { spatial: 1, logical: 1 } }
+                ]
+            },
+            {
+                text: "学习新知识时，你更喜欢哪种方式？",
+                options: [
+                    { text: "阅读书籍或文章", scores: { linguistic: 3, intrapersonal: 1 } },
+                    { text: "看视频或听讲解", scores: { musical: 2, interpersonal: 1 } },
+                    { text: "动手实践操作", scores: { bodily: 3, executive: 1 } },
+                    { text: "观察图表和图像", scores: { spatial: 3, aesthetic: 1 } }
+                ]
+            },
+            {
+                text: "在辩论或讨论中，你通常的表现是？",
+                options: [
+                    { text: "能言善辩，逻辑清晰", scores: { linguistic: 3, logical: 2 } },
+                    { text: "善于倾听，适时发言", scores: { interpersonal: 2, intrapersonal: 1 } },
+                    { text: "用行动或例子说明", scores: { bodily: 2, executive: 1 } },
+                    { text: "不太喜欢争论", scores: { intrapersonal: 2, naturalist: 1 } }
+                ]
+            },
+            {
+                text: "你平时会主动记录生活或写日记吗？",
+                options: [
+                    { text: "经常写，这是我的习惯", scores: { linguistic: 3, intrapersonal: 2 } },
+                    { text: "偶尔记录重要时刻", scores: { linguistic: 2, aesthetic: 1 } },
+                    { text: "很少，更喜欢拍照留念", scores: { aesthetic: 2, spatial: 1 } },
+                    { text: "几乎不记录", scores: { executive: 1, bodily: 1 } }
+                ]
+            },
+            // 逻辑算术相关 (5-8)
+            {
+                text: "面对数学或逻辑问题时，你的感受是？",
+                options: [
+                    { text: "很享受解题的过程", scores: { logical: 3, intrapersonal: 1 } },
+                    { text: "可以接受，但需要时间", scores: { logical: 2, executive: 1 } },
+                    { text: "有些头疼，但会努力解决", scores: { executive: 2, linguistic: 1 } },
+                    { text: "尽量回避这类问题", scores: { aesthetic: 1, interpersonal: 1 } }
+                ]
+            },
+            {
+                text: "做决策时，你更倾向于？",
+                options: [
+                    { text: "分析数据和利弊", scores: { logical: 3, executive: 1 } },
+                    { text: "听从内心的直觉", scores: { intuitive: 3, intrapersonal: 1 } },
+                    { text: "咨询他人意见", scores: { interpersonal: 2, linguistic: 1 } },
+                    { text: "先试试看再说", scores: { executive: 2, bodily: 1 } }
+                ]
+            },
+            {
+                text: "你擅长发现事物之间的规律吗？",
+                options: [
+                    { text: "非常擅长，经常能发现联系", scores: { logical: 3, intuitive: 2 } },
+                    { text: "还可以，需要仔细观察", scores: { logical: 2, naturalist: 1 } },
+                    { text: "一般，更关注具体细节", scores: { executive: 2, bodily: 1 } },
+                    { text: "不太擅长，更关注整体感受", scores: { aesthetic: 2, musical: 1 } }
+                ]
+            },
+            {
+                text: "玩策略类游戏时，你的表现如何？",
+                options: [
+                    { text: "经常获胜，善于规划", scores: { logical: 3, executive: 2 } },
+                    { text: "中等水平，享受过程", scores: { logical: 2, interpersonal: 1 } },
+                    { text: "靠直觉和运气", scores: { intuitive: 2, executive: 1 } },
+                    { text: "不太喜欢玩这类游戏", scores: { aesthetic: 1, bodily: 1 } }
+                ]
+            },
+            // 内省天赋相关 (9-11)
+            {
+                text: "你多久会花时间独处思考？",
+                options: [
+                    { text: "每天都需要独处时间", scores: { intrapersonal: 3, intuitive: 1 } },
+                    { text: "每周几次", scores: { intrapersonal: 2, linguistic: 1 } },
+                    { text: "偶尔需要", scores: { interpersonal: 2, executive: 1 } },
+                    { text: "很少独处，喜欢热闹", scores: { interpersonal: 3, bodily: 1 } }
+                ]
+            },
+            {
+                text: "你对自己的情绪和动机了解程度如何？",
+                options: [
+                    { text: "非常了解，能清晰觉察", scores: { intrapersonal: 3, intuitive: 2 } },
+                    { text: "比较了解，有时会反思", scores: { intrapersonal: 2, linguistic: 1 } },
+                    { text: "一般，不太深入思考", scores: { executive: 2, bodily: 1 } },
+                    { text: "不太了解，随感觉走", scores: { intuitive: 2, musical: 1 } }
+                ]
+            },
+            {
+                text: "面对人生重大选择时，你会？",
+                options: [
+                    { text: "深入思考自己的价值观", scores: { intrapersonal: 3, existential: 2 } },
+                    { text: "分析各种可能性", scores: { logical: 2, executive: 1 } },
+                    { text: "听取家人朋友建议", scores: { interpersonal: 2, linguistic: 1 } },
+                    { text: "跟随内心的感觉", scores: { intuitive: 3, musical: 1 } }
+                ]
+            },
+            // 身体动觉相关 (12-14)
+            {
+                text: "你学习新技能时，哪种方式最有效？",
+                options: [
+                    { text: "动手实践，身体记忆", scores: { bodily: 3, executive: 1 } },
+                    { text: "观察别人怎么做", scores: { spatial: 2, interpersonal: 1 } },
+                    { text: "阅读说明书", scores: { linguistic: 2, logical: 1 } },
+                    { text: "听别人讲解", scores: { musical: 2, linguistic: 1 } }
+                ]
+            },
+            {
+                text: "你擅长体育运动或舞蹈吗？",
+                options: [
+                    { text: "非常擅长，身体协调性好", scores: { bodily: 3, musical: 1 } },
+                    { text: "还可以，喜欢运动", scores: { bodily: 2, executive: 1 } },
+                    { text: "一般，偶尔运动", scores: { executive: 1, interpersonal: 1 } },
+                    { text: "不太擅长，更喜欢静态活动", scores: { linguistic: 2, intrapersonal: 1 } }
+                ]
+            },
+            {
+                text: "长时间坐着工作，你的感受是？",
+                options: [
+                    { text: "很难受，需要经常活动", scores: { bodily: 3, executive: 1 } },
+                    { text: "有点不适，但能坚持", scores: { bodily: 2, intrapersonal: 1 } },
+                    { text: "没什么特别感觉", scores: { logical: 2, linguistic: 1 } },
+                    { text: "很适应，能专注很久", scores: { intrapersonal: 2, logical: 1 } }
+                ]
+            },
+            // 音乐天赋相关 (15-17)
+            {
+                text: "你对音乐的敏感度如何？",
+                options: [
+                    { text: "非常敏感，能分辨细微的旋律变化", scores: { musical: 3, intuitive: 1 } },
+                    { text: "比较敏感，喜欢特定类型的音乐", scores: { musical: 2, aesthetic: 1 } },
+                    { text: "一般，只是偶尔听音乐", scores: { interpersonal: 1, executive: 1 } },
+                    { text: "不太敏感，很少关注音乐", scores: { logical: 1, bodily: 1 } }
+                ]
+            },
+            {
+                text: "你会演奏乐器或唱歌吗？",
+                options: [
+                    { text: "会多种乐器，或唱歌很好", scores: { musical: 3, aesthetic: 2 } },
+                    { text: "会一种乐器，或偶尔唱歌", scores: { musical: 2, bodily: 1 } },
+                    { text: "想学但没学过", scores: { executive: 2, intuitive: 1 } },
+                    { text: "完全不会，也没兴趣", scores: { logical: 1, spatial: 1 } }
+                ]
+            },
+            {
+                text: "情绪低落时，音乐对你有帮助吗？",
+                options: [
+                    { text: "非常有帮助，能调节情绪", scores: { musical: 3, intrapersonal: 2 } },
+                    { text: "有一定帮助，能放松心情", scores: { musical: 2, interpersonal: 1 } },
+                    { text: "帮助不大，更喜欢其他方式", scores: { bodily: 2, executive: 1 } },
+                    { text: "几乎没帮助", scores: { logical: 2, existential: 1 } }
+                ]
+            },
+            // 美学天赋相关 (18-20)
+            {
+                text: "你对美的感知能力如何？",
+                options: [
+                    { text: "非常强，能发现生活中的美", scores: { aesthetic: 3, spatial: 2 } },
+                    { text: "较强，喜欢欣赏艺术作品", scores: { aesthetic: 2, musical: 1 } },
+                    { text: "一般，只关注实用功能", scores: { executive: 2, logical: 1 } },
+                    { text: "较弱，不太在意审美", scores: { bodily: 1, interpersonal: 1 } }
+                ]
+            },
+            {
+                text: "你喜欢创作艺术作品吗（绘画/设计/手工）？",
+                options: [
+                    { text: "经常创作，享受这个过程", scores: { aesthetic: 3, spatial: 2 } },
+                    { text: "偶尔创作，当作爱好", scores: { aesthetic: 2, bodily: 1 } },
+                    { text: "很少创作，但喜欢欣赏", scores: { interpersonal: 2, intuitive: 1 } },
+                    { text: "从不创作，也不感兴趣", scores: { logical: 2, executive: 1 } }
+                ]
+            },
+            {
+                text: "你对色彩搭配和空间布置敏感吗？",
+                options: [
+                    { text: "非常敏感，擅长搭配和布置", scores: { aesthetic: 3, spatial: 3 } },
+                    { text: "比较敏感，有自己的审美偏好", scores: { aesthetic: 2, spatial: 2 } },
+                    { text: "一般，随便布置就好", scores: { executive: 2, bodily: 1 } },
+                    { text: "不敏感，完全没概念", scores: { logical: 1, linguistic: 1 } }
+                ]
+            },
+            // 人际天赋相关 (21-23)
+            {
+                text: "你擅长理解和安慰他人吗？",
+                options: [
+                    { text: "非常擅长，能共情并提供帮助", scores: { interpersonal: 3, intrapersonal: 2 } },
+                    { text: "比较擅长，愿意倾听和支持", scores: { interpersonal: 2, linguistic: 1 } },
+                    { text: "一般，只能提供简单建议", scores: { executive: 2, logical: 1 } },
+                    { text: "不太擅长，不知道如何安慰", scores: { intrapersonal: 2, bodily: 1 } }
+                ]
+            },
+            {
+                text: "你喜欢参加社交活动吗？",
+                options: [
+                    { text: "非常喜欢，能从中获得能量", scores: { interpersonal: 3, bodily: 1 } },
+                    { text: "比较喜欢，适度社交", scores: { interpersonal: 2, executive: 1 } },
+                    { text: "一般，偶尔参加", scores: { intrapersonal: 2, aesthetic: 1 } },
+                    { text: "不喜欢，尽量回避", scores: { intrapersonal: 3, logical: 1 } }
+                ]
+            },
+            {
+                text: "你能快速记住别人的名字和面孔吗？",
+                options: [
+                    { text: "非常快，过目不忘", scores: { interpersonal: 3, spatial: 2 } },
+                    { text: "比较快，需要一点时间", scores: { interpersonal: 2, linguistic: 1 } },
+                    { text: "一般，经常忘记", scores: { executive: 2, bodily: 1 } },
+                    { text: "很慢，总是记不住", scores: { intrapersonal: 2, intuitive: 1 } }
+                ]
+            },
+            // 自然观察相关 (24-26)
+            {
+                text: "你喜欢亲近自然吗？",
+                options: [
+                    { text: "非常喜欢，经常去户外", scores: { naturalist: 3, bodily: 2 } },
+                    { text: "比较喜欢，偶尔去户外", scores: { naturalist: 2, spatial: 1 } },
+                    { text: "一般，没特别感觉", scores: { executive: 2, interpersonal: 1 } },
+                    { text: "不喜欢，更喜欢室内", scores: { intrapersonal: 2, aesthetic: 1 } }
+                ]
+            },
+            {
+                text: "你能分辨不同的植物/动物种类吗？",
+                options: [
+                    { text: "能分辨很多，了解它们的特性", scores: { naturalist: 3, logical: 2 } },
+                    { text: "能分辨常见的种类", scores: { naturalist: 2, executive: 1 } },
+                    { text: "只能分辨少数几种", scores: { spatial: 1, aesthetic: 1 } },
+                    { text: "几乎分辨不出来", scores: { linguistic: 1, musical: 1 } }
+                ]
+            },
+            {
+                text: "你关注环保和自然保护吗？",
+                options: [
+                    { text: "非常关注，身体力行", scores: { naturalist: 3, existential: 2 } },
+                    { text: "比较关注，了解相关信息", scores: { naturalist: 2, interpersonal: 1 } },
+                    { text: "一般，偶尔关注新闻", scores: { executive: 2, logical: 1 } },
+                    { text: "不太关注", scores: { aesthetic: 1, bodily: 1 } }
+                ]
+            },
+            // 空间感知相关 (27-29)
+            {
+                text: "你擅长看地图或导航吗？",
+                options: [
+                    { text: "非常擅长，方向感极好", scores: { spatial: 3, logical: 2 } },
+                    { text: "比较擅长，能快速找到路", scores: { spatial: 2, executive: 1 } },
+                    { text: "一般，需要导航工具", scores: { intuitive: 2, linguistic: 1 } },
+                    { text: "不擅长，经常迷路", scores: { bodily: 2, interpersonal: 1 } }
+                ]
+            },
+            {
+                text: "你擅长想象三维空间或物体结构吗？",
+                options: [
+                    { text: "非常擅长，能清晰想象", scores: { spatial: 3, logical: 2 } },
+                    { text: "比较擅长，需要一点时间", scores: { spatial: 2, aesthetic: 1 } },
+                    { text: "一般，只能想象简单结构", scores: { executive: 2, bodily: 1 } },
+                    { text: "不擅长，很难想象", scores: { linguistic: 2, musical: 1 } }
+                ]
+            },
+            {
+                text: "你喜欢拼图或搭积木/乐高吗？",
+                options: [
+                    { text: "非常喜欢，擅长复杂拼图", scores: { spatial: 3, logical: 2 } },
+                    { text: "比较喜欢，享受过程", scores: { spatial: 2, executive: 1 } },
+                    { text: "一般，偶尔玩玩", scores: { bodily: 2, intuitive: 1 } },
+                    { text: "不喜欢，觉得无聊", scores: { interpersonal: 2, musical: 1 } }
+                ]
+            },
+            // 存在智慧相关 (30-32)
+            {
+                text: "你会思考人生意义或哲学问题吗？",
+                options: [
+                    { text: "经常思考，乐此不疲", scores: { existential: 3, intrapersonal: 2 } },
+                    { text: "偶尔思考，寻求答案", scores: { existential: 2, logical: 1 } },
+                    { text: "很少思考，关注现实生活", scores: { executive: 2, bodily: 1 } },
+                    { text: "从不思考，觉得没用", scores: { interpersonal: 2, aesthetic: 1 } }
+                ]
+            },
+            {
+                text: "你对宇宙和生命的奥秘感兴趣吗？",
+                options: [
+                    { text: "非常感兴趣，主动学习相关知识", scores: { existential: 3, naturalist: 2 } },
+                    { text: "比较感兴趣，喜欢看相关内容", scores: { existential: 2, intuitive: 1 } },
+                    { text: "一般，偶尔会好奇", scores: { logical: 2, spatial: 1 } },
+                    { text: "不感兴趣，关注眼前的事", scores: { executive: 2, bodily: 1 } }
+                ]
+            },
+            {
+                text: "面对挫折时，你能从更高维度看待问题吗？",
+                options: [
+                    { text: "总能从大局看待，保持平常心", scores: { existential: 3, intrapersonal: 2 } },
+                    { text: "有时能，需要一点时间", scores: { existential: 2, interpersonal: 1 } },
+                    { text: "很少能，容易陷入情绪", scores: { intuitive: 2, musical: 1 } },
+                    { text: "不能，只关注当下感受", scores: { bodily: 2, aesthetic: 1 } }
+                ]
+            },
+            // 直觉力相关 (33-35)
+            {
+                text: "你的直觉通常准确吗？",
+                options: [
+                    { text: "非常准确，经常靠直觉做决定", scores: { intuitive: 3, intrapersonal: 2 } },
+                    { text: "比较准确，有时会参考直觉", scores: { intuitive: 2, existential: 1 } },
+                    { text: "一般，偶尔准偶尔不准", scores: { logical: 2, executive: 1 } },
+                    { text: "不准确，从不相信直觉", scores: { logical: 3, linguistic: 1 } }
+                ]
+            },
+            {
+                text: "你能提前感知到事情的发展方向吗？",
+                options: [
+                    { text: "经常能，有很强的预判能力", scores: { intuitive: 3, logical: 2 } },
+                    { text: "有时能，对熟悉的事情可以", scores: { intuitive: 2, executive: 1 } },
+                    { text: "很少能，只能看到眼前", scores: { bodily: 2, spatial: 1 } },
+                    { text: "不能，走一步看一步", scores: { interpersonal: 2, musical: 1 } }
+                ]
+            },
+            {
+                text: "你相信第六感或潜意识的指引吗？",
+                options: [
+                    { text: "非常相信，经常跟随内心", scores: { intuitive: 3, intrapersonal: 2 } },
+                    { text: "比较相信，会适当参考", scores: { intuitive: 2, musical: 1 } },
+                    { text: "一般，半信半疑", scores: { logical: 2, naturalist: 1 } },
+                    { text: "不相信，只信事实和数据", scores: { logical: 3, executive: 1 } }
+                ]
+            },
+            // 执行力相关 (36-39)
+            {
+                text: "你完成任务的效率如何？",
+                options: [
+                    { text: "非常高效，总能提前完成", scores: { executive: 3, logical: 2 } },
+                    { text: "比较高效，能按时完成", scores: { executive: 2, bodily: 1 } },
+                    { text: "一般，偶尔会拖延", scores: { intuitive: 2, interpersonal: 1 } },
+                    { text: "较低效，经常拖延", scores: { intrapersonal: 2, aesthetic: 1 } }
+                ]
+            },
+            {
+                text: "面对复杂任务，你会如何处理？",
+                options: [
+                    { text: "拆解任务，按计划执行", scores: { executive: 3, logical: 2 } },
+                    { text: "先做容易的部分，逐步推进", scores: { executive: 2, bodily: 1 } },
+                    { text: "凭感觉做，做到哪算哪", scores: { intuitive: 2, spatial: 1 } },
+                    { text: "先放一放，等有灵感再做", scores: { musical: 2, aesthetic: 1 } }
+                ]
+            },
+            {
+                text: "你对设定的目标的坚持程度如何？",
+                options: [
+                    { text: "非常坚持，不达目的不罢休", scores: { executive: 3, intrapersonal: 2 } },
+                    { text: "比较坚持，遇到困难会想办法", scores: { executive: 2, logical: 1 } },
+                    { text: "一般，容易受外界影响", scores: { interpersonal: 2, bodily: 1 } },
+                    { text: "不太坚持，经常改变目标", scores: { intuitive: 2, musical: 1 } }
+                ]
+            },
+            {
+                text: "你擅长管理时间和优先级吗？",
+                options: [
+                    { text: "非常擅长，时间管理能力强", scores: { executive: 3, logical: 2 } },
+                    { text: "比较擅长，有基本的规划", scores: { executive: 2, linguistic: 1 } },
+                    { text: "一般，偶尔会混乱", scores: { interpersonal: 2, spatial: 1 } },
+                    { text: "不擅长，经常手忙脚乱", scores: { intrapersonal: 2, aesthetic: 1 } }
+                ]
+            }
+        ];
+
+        // 全局变量
+        let currentQuestion = 1;
+        let scores = {
+            linguistic: 0,
+            logical: 0,
+            intrapersonal: 0,
+            bodily: 0,
+            musical: 0,
+            aesthetic: 0,
+            interpersonal: 0,
+            naturalist: 0,
+            spatial: 0,
+            existential: 0,
+            intuitive: 0,
+            executive: 0
+        };
+
+        // 原始的开始测试函数
+        function originalStartQuiz() {
+            document.getElementById('welcome-page').classList.remove('active');
+            document.getElementById('progress-page').classList.add('active');
+            document.getElementById('question-page').classList.add('active');
+            loadQuestion(1);
+        }
+
+        // 覆盖startQuiz函数，增加Token判断
+        function startQuiz() {
+            // 无Token → 正常执行原逻辑
+            if (!currentValidToken) {
+                originalStartQuiz();
+                return;
+            }
+            
+            // 有Token且已使用 → 弹出已完成结果提示
+            const tokenData = JSON.parse(localStorage.getItem(`test_token_${currentValidToken}`));
+            if (tokenData && tokenData.status === 'used') {
+                alert('📊 你已完成该测评！\n该链接已使用，可查看历史测评结果。');
+                return;
+            }
+            
+            // 有Token且未使用 → 执行原测试逻辑，测试后标记为已使用
+            originalStartQuiz();
+            // 标记Token为已使用
+            tokenData.status = 'used';
+            localStorage.setItem(`test_token_${currentValidToken}`, JSON.stringify(tokenData));
+        }
+
+        // 加载问题
+        function loadQuestion(num) {
+            const question = questions[num - 1];
+            document.getElementById('q-number').textContent = num;
+            document.getElementById('q-text').textContent = question.text;
+            document.getElementById('current-q').textContent = num;
+            
+            // 更新进度条
+            const progress = (num / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            
+            // 加载选项
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.innerHTML = `
+                    <div class="option-icon">${index + 1}</div>
+                    <div class="option-text">${option.text}</div>
+                `;
+                
+                optionEl.addEventListener('click', () => {
+                    // 累加分数
+                    for (const dim in option.scores) {
+                        scores[dim] += option.scores[dim];
+                    }
+                    
+                    // 下一题或完成测试
+                    if (num < questions.length) {
+                        currentQuestion = num + 1;
+                        loadQuestion(currentQuestion);
+                    } else {
+                        completeQuiz();
+                    }
+                });
+                
+                optionsContainer.appendChild(optionEl);
+            });
+        }
+
+        // 完成测试，生成报告
+        function completeQuiz() {
+            // 显示加载页
+            document.getElementById('progress-page').classList.remove('active');
+            document.getElementById('question-page').classList.remove('active');
+            document.getElementById('loading-page').classList.add('active');
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                generateReport();
+                document.getElementById('loading-page').classList.remove('active');
+                document.getElementById('result-page').classList.add('active');
+            }, 2000);
+        }
+
+        // 生成测评报告
+        function generateReport() {
+            // 计算各维度得分（归一化到100分）
+            const maxScorePerDim = 39 * 3; // 每题最高3分，共39题
+            const normalizedScores = {};
+            for (const dim in scores) {
+                normalizedScores[dim] = Math.min(Math.round((scores[dim] / maxScorePerDim) * 100), 100);
+            }
+            
+            // 找出最高的三个维度
+            const sortedDims = Object.entries(normalizedScores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            // 设置报告头部
+            const talentTypes = [
+                { combo: ['linguistic', 'logical'], name: '智慧分析型', emoji: '🧠', desc: '你拥有出色的语言表达和逻辑分析能力，善于思考和沟通，是天生的分析者和表达者。' },
+                { combo: ['intrapersonal', 'existential'], name: '内省哲思型', emoji: '📿', desc: '你拥有深刻的自我认知和哲学思考能力，善于反思和洞察本质，是天生的思考者和洞察者。' },
+                { combo: ['bodily', 'executive'], name: '行动实践型', emoji: '🚀', desc: '你拥有出色的身体协调和执行能力，善于行动和落地，是天生的实践者和行动派。' },
+                { combo: ['musical', 'aesthetic'], name: '艺术创造型', emoji: '🎨', desc: '你拥有敏锐的音乐感知和审美能力，善于创造和表达美，是天生的艺术家和创造者。' },
+                { combo: ['interpersonal', 'naturalist'], name: '人际自然型', emoji: '🌱', desc: '你拥有出色的人际交往和自然感知能力，善于连接他人和自然，是天生的连接者和守护者。' },
+                { combo: ['spatial

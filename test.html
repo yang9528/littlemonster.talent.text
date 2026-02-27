@@ -298,56 +298,113 @@
         const CONFIG = { EXPIRE_HOURS: 48, TOTAL_QUESTIONS: 39 };
         let currentQuestion = 0, scores = {}, testResult = null, linkId = null, linkValid = false, modalCallback = null;
         
-        // 后端API配置 - 使用 jsonbin.io
+        // 后端API配置 - 使用 jsonbin.io (带CORS处理)
         const BACKEND = {
             // API密钥
             API_KEY: '$2a$10$r5/UkXmv98Txx/aVfzRAvuizBsaVEGtKE1frersRPDXFznMowMp8q',
             // Bin ID
             BIN_ID: '69a15c35d0ea881f40de5645',
             BASE_URL: 'https://api.jsonbin.io/v3/b',
+            MAX_CLICKS: 6, // 最大点击次数
             
-            // 检查链接状态
+            // 检查链接状态（包含点击次数）
             async checkLink(linkId) {
                 try {
                     const response = await fetch(`${this.BASE_URL}/${this.BIN_ID}/latest`, {
-                        headers: { 'X-Master-Key': this.API_KEY }
+                        method: 'GET',
+                        headers: { 
+                            'X-Master-Key': this.API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        mode: 'cors'
                     });
-                    if (!response.ok) return null;
+                    if (!response.ok) {
+                        console.log('API响应错误:', response.status);
+                        return null;
+                    }
                     const data = await response.json();
                     const links = data.record?.links || {};
                     return links[linkId] || null;
                 } catch (e) {
-                    console.log('后端检查失败，使用本地模式');
+                    console.log('后端检查失败:', e.message);
                     return null;
                 }
             },
             
-            // 标记链接为已使用
-            async markUsed(linkId) {
+            // 增加点击次数
+            async incrementClicks(linkId) {
                 try {
-                    // 先获取最新数据
                     const getRes = await fetch(`${this.BASE_URL}/${this.BIN_ID}/latest`, {
-                        headers: { 'X-Master-Key': this.API_KEY }
+                        method: 'GET',
+                        headers: { 
+                            'X-Master-Key': this.API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        mode: 'cors'
                     });
-                    if (!getRes.ok) return false;
+                    if (!getRes.ok) return { success: false, clicks: 0 };
+                    
                     const data = await getRes.json();
                     const links = data.record?.links || {};
                     
-                    // 更新状态
-                    links[linkId] = { used: true, usedAt: Date.now() };
+                    const current = links[linkId] || { clicks: 0 };
+                    current.clicks = (current.clicks || 0) + 1;
+                    current.lastClick = Date.now();
                     
-                    // 保存
+                    links[linkId] = current;
+                    
                     const putRes = await fetch(`${this.BASE_URL}/${this.BIN_ID}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Master-Key': this.API_KEY
                         },
+                        mode: 'cors',
+                        body: JSON.stringify({ links, updated: Date.now() })
+                    });
+                    
+                    return { success: putRes.ok, clicks: current.clicks };
+                } catch (e) {
+                    console.log('增加点击次数失败:', e.message);
+                    return { success: false, clicks: 0 };
+                }
+            },
+            
+            // 标记链接为已使用（测试完成）
+            async markUsed(linkId, result) {
+                try {
+                    const getRes = await fetch(`${this.BASE_URL}/${this.BIN_ID}/latest`, {
+                        method: 'GET',
+                        headers: { 
+                            'X-Master-Key': this.API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        mode: 'cors'
+                    });
+                    if (!getRes.ok) return false;
+                    
+                    const data = await getRes.json();
+                    const links = data.record?.links || {};
+                    
+                    links[linkId] = { 
+                        ...links[linkId],
+                        used: true, 
+                        usedAt: Date.now(),
+                        result: result 
+                    };
+                    
+                    const putRes = await fetch(`${this.BASE_URL}/${this.BIN_ID}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': this.API_KEY
+                        },
+                        mode: 'cors',
                         body: JSON.stringify({ links, updated: Date.now() })
                     });
                     return putRes.ok;
                 } catch (e) {
-                    console.log('后端标记失败，使用本地模式');
+                    console.log('后端标记失败:', e.message);
                     return false;
                 }
             }
@@ -435,7 +492,7 @@
                 window.location.replace(url.toString());
             }
         }
-        // 异步验证链接（支持后端检查）
+        // 异步验证链接（支持后端检查和点击次数限制）
         async function validateLink() {
             const url = new URL(window.location.href);
             const id = url.searchParams.get('id');
@@ -453,8 +510,8 @@
             if (resultParam) {
                 testResult = decodeResult(resultParam);
                 if (testResult) { 
-                    const noticeEl = document.getElementById('exclusive-notice');
-                    if (noticeEl) noticeEl.style.display = 'none';
+                    // 隐藏欢迎页内容，只显示结果
+                    hideWelcomeContent();
                     showModal('📊', '测评已完成', '该测试链接已完成测评！\n点击确定查看测评结果。'); 
                     return; 
                 }
@@ -479,12 +536,29 @@
                 return;
             }
             
-            // 后端验证 - 检查链接是否已被使用
+            // 后端验证 - 检查链接状态和点击次数
             const backendStatus = await BACKEND.checkLink(id);
+            
+            // 检查是否已完成测试
             if (backendStatus && backendStatus.used) {
-                showModal('🔒', '链接已被使用', '该测试链接已被使用！\n每个链接仅限一位测试者使用一次。\n请从主页面获取新的测试链接。');
+                hideWelcomeContent();
+                showModal('🔒', '链接已被使用', '该测试链接已完成测评！\n每个链接仅限一位测试者使用一次。\n请从主页面获取新的测试链接。');
                 disableStartButton();
                 return;
+            }
+            
+            // 检查点击次数是否超过限制
+            if (backendStatus && backendStatus.clicks >= BACKEND.MAX_CLICKS) {
+                showModal('⛔', '链接已失效', `该测试链接已被点击${BACKEND.MAX_CLICKS}次，已超出使用限制。\n请从主页面获取新的测试链接。`);
+                disableStartButton();
+                return;
+            }
+            
+            // 显示剩余点击次数
+            const clicks = backendStatus?.clicks || 0;
+            const remaining = BACKEND.MAX_CLICKS - clicks;
+            if (remaining < BACKEND.MAX_CLICKS) {
+                console.log(`剩余点击次数: ${remaining}`);
             }
             
             // 检查链接是否过期
@@ -499,6 +573,23 @@
                 linkValid = true;
             } catch (e) { showModal('❌', '链接无效', '该测试链接格式错误！\n请从主页面获取有效的测试链接。'); disableStartButton(); }
         }
+        
+        // 隐藏欢迎页内容（结果页面使用）
+        function hideWelcomeContent() {
+            const welcomeHeader = document.querySelector('.welcome-header');
+            const infoCards = document.querySelector('.info-cards');
+            const dimensionsPreview = document.querySelector('.dimensions-preview');
+            const privacyNotice = document.querySelector('.privacy-notice');
+            const exclusiveNotice = document.getElementById('exclusive-notice');
+            const ctaSection = document.querySelector('.cta-section');
+            
+            if (welcomeHeader) welcomeHeader.style.display = 'none';
+            if (infoCards) infoCards.style.display = 'none';
+            if (dimensionsPreview) dimensionsPreview.style.display = 'none';
+            if (privacyNotice) privacyNotice.style.display = 'none';
+            if (exclusiveNotice) exclusiveNotice.style.display = 'none';
+            if (ctaSection) ctaSection.style.display = 'none';
+        }
         function disableStartButton() { const btn = document.getElementById('start-btn'); btn.disabled = true; btn.textContent = '链接无效'; btn.style.background = '#ccc'; }
         function showModal(icon, title, text, callback) {
             modalCallback = callback || null;
@@ -512,10 +603,29 @@
             if (modalCallback) { const cb = modalCallback; modalCallback = null; cb(); return; }
             if (testResult) displayResult();
         }
-        // 异步开始测试（支持后端标记）
+        // 异步开始测试（支持点击次数限制）
         async function startQuiz() {
             if (testResult) { displayResult(); return; }
             if (!linkValid) { showModal('❌', '链接无效', '该测试链接无效或已过期！\n请从主页面获取有效的测试链接。'); return; }
+            
+            // 增加点击次数
+            const clickResult = await BACKEND.incrementClicks(linkId);
+            if (clickResult.success) {
+                console.log(`当前点击次数: ${clickResult.clicks}/${BACKEND.MAX_CLICKS}`);
+                
+                // 检查是否超过点击次数限制
+                if (clickResult.clicks > BACKEND.MAX_CLICKS) {
+                    showModal('⛔', '链接已失效', `该测试链接已被点击${BACKEND.MAX_CLICKS}次，已超出使用限制。\n请从主页面获取新的测试链接。`);
+                    disableStartButton();
+                    return;
+                }
+                
+                // 显示剩余次数提示（如果接近上限）
+                const remaining = BACKEND.MAX_CLICKS - clickResult.clicks;
+                if (remaining <= 2 && remaining > 0) {
+                    console.log(`⚠️ 剩余点击次数: ${remaining}`);
+                }
+            }
             
             // 检查URL是否已标记开始（防止重复点击开始）
             const url = new URL(window.location.href);
@@ -539,12 +649,6 @@
                 document.getElementById('question-page').classList.add('active');
                 showQuestion();
                 return;
-            }
-            
-            // 首次点击开始 - 先调用后端标记
-            const marked = await BACKEND.markUsed(linkId);
-            if (!marked) {
-                console.log('后端标记失败，继续本地模式');
             }
             
             // 标记已开始
@@ -620,16 +724,18 @@
         }
         function calculateResult() {
             showLoading();
-            setTimeout(() => {
+            setTimeout(async () => {
                 const maxScore = 12, percentages = {};
                 for (const [dim, score] of Object.entries(scores)) percentages[dim] = Math.min(100, Math.round((score / maxScore) * 100));
                 const sortedDims = Object.entries(percentages).sort((a, b) => b[1] - a[1]);
                 testResult = { top3Keys: sortedDims.slice(0, 3).map(d => d[0]), percentages: percentages, sortedDims: sortedDims, timestamp: Date.now() };
                 updateUrl({ result: testResult });
-                // 保存到 localStorage，确保链接不可逆
+                
+                // 后端标记链接为已完成
                 if (linkId) {
-                    localStorage.setItem(`talent_completed_${linkId}`, JSON.stringify(testResult));
+                    await BACKEND.markUsed(linkId, testResult);
                 }
+                
                 displayResult();
             }, 2500);
         }
